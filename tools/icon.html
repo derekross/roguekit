@@ -1,0 +1,39 @@
+<!doctype html><html><head><style>html,body{margin:0;padding:0;background:transparent}svg{display:block}</style></head><body>
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+ <defs>
+  <radialGradient id="bg" cx=".5" cy=".45" r=".7"><stop offset="0" stop-color="#2b2418"/><stop offset=".7" stop-color="#16120c"/><stop offset="1" stop-color="#0a0807"/></radialGradient>
+  <linearGradient id="capTop" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4a3a2a"/><stop offset="1" stop-color="#2a2019"/></linearGradient>
+  <linearGradient id="capSide" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#211a14"/><stop offset="1" stop-color="#110d0a"/></linearGradient>
+  <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f0d27a"/><stop offset=".5" stop-color="#c79a3b"/><stop offset="1" stop-color="#8a6420"/></linearGradient>
+  <linearGradient id="blade" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#f4f4ee"/><stop offset=".5" stop-color="#c9ccd2"/><stop offset=".5" stop-color="#8e939c"/><stop offset="1" stop-color="#6c707a"/></linearGradient>
+  <filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="3" stdDeviation="2.5" flood-color="#000" flood-opacity=".7"/></filter>
+  <!-- one dagger, pointing up, centered on x=0; hilt at the bottom -->
+  <g id="dagger">
+   <path d="M0 -84 L11 -62 L11 6 L-11 6 L-11 -62 Z" fill="url(#blade)" stroke="#2a2a30" stroke-width="3" stroke-linejoin="round"/>
+   <path d="M0 -78 L0 2" stroke="#ffffff" stroke-opacity=".55" stroke-width="2"/>
+   <rect x="-26" y="4" width="52" height="11" rx="5.5" fill="#fff468" stroke="#5a4a10" stroke-width="3"/>
+   <rect x="-7" y="15" width="14" height="30" rx="3" fill="#5a3a22" stroke="#24160c" stroke-width="3"/>
+   <path d="M-7 23 H7 M-7 31 H7 M-7 39 H7" stroke="#24160c" stroke-width="2"/>
+   <circle cx="0" cy="51" r="8" fill="#fff468" stroke="#5a4a10" stroke-width="3"/>
+  </g>
+ </defs>
+ <rect x="4" y="4" width="248" height="248" rx="46" fill="url(#bg)"/>
+ <!-- keycap body (side) -->
+ <rect x="46" y="60" width="164" height="164" rx="28" fill="url(#capSide)" stroke="url(#gold)" stroke-width="6"/>
+ <!-- keycap top -->
+ <rect x="54" y="40" width="148" height="152" rx="24" fill="url(#capTop)" stroke="url(#gold)" stroke-width="5"/>
+ <!-- gold corner studs -->
+ <g fill="url(#gold)"><circle cx="68" cy="54" r="5.5"/><circle cx="188" cy="54" r="5.5"/><circle cx="68" cy="178" r="5.5"/><circle cx="188" cy="178" r="5.5"/></g>
+ <!-- crossed daggers -->
+ <g filter="url(#shadow)">
+  <use href="#dagger" transform="translate(128 118) rotate(-38) scale(.92)"/>
+  <use href="#dagger" transform="translate(128 118) rotate(38) scale(.92)"/>
+ </g>
+ <!-- poison drip from the right blade tip -->
+ <g filter="url(#glow)">
+  <path d="M178 60 C182 64 183 68 183 72" stroke="#5dff3a" stroke-width="4" stroke-linecap="round" fill="none"/>
+  <path d="M184 70 C184 70 197 88 197 97 C197 104 191 109 184 109 C177 109 171 104 171 97 C171 88 184 70 184 70 Z" fill="#5dff3a" stroke="#1e6a10" stroke-width="2.5"/>
+  <ellipse cx="179" cy="95" rx="3.2" ry="5.5" fill="#d9ffc9" opacity=".8"/>
+ </g>
+</svg></body></html>
