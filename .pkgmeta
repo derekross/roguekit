@@ -1,0 +1,6 @@
+package-as: RogueKit
+
+ignore:
+  - README.md
+  - .github
+  - tools

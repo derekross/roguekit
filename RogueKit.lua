@@ -55,9 +55,10 @@ local PROFILES = {
 		macros = {
 			-- Same key enters and leaves stealth. "!" stops a double tap from cancelling it
 			-- on the way in; the stealth-page copy cancels it on purpose.
-			{ name = "RK Stealth", body = ("#showtooltip %s\n/cast [nostealth] !%s\n/cancelaura [stealth] %s"):format(S.stealth, S.stealth, S.stealth) },
-			{ name = "RK Sap", body = ("#showtooltip %s\n/cast [@mouseover,harm,nodead][] %s"):format(S.sap, S.sap) },
-			{ name = "RK Throw", body = ("#showtooltip\n/cast [equipped:Thrown] %s; [equipped:Bows] %s; [equipped:Guns] %s; [equipped:Crossbows] %s")
+			-- icon: shown until one of `spells` is learned, then the automatic icon takes over.
+			{ name = "RK Stealth", icon = "Ability_Stealth", spells = { S.stealth }, body = ("#showtooltip %s\n/cast [nostealth] !%s\n/cancelaura [stealth] %s"):format(S.stealth, S.stealth, S.stealth) },
+			{ name = "RK Sap", icon = "Ability_Sap", spells = { S.sap }, body = ("#showtooltip %s\n/cast [@mouseover,harm,nodead][] %s"):format(S.sap, S.sap) },
+			{ name = "RK Throw", icon = "Ability_Throw", spells = { S.throw, S.shootBow, S.shootGun, S.shootCrossbow }, body = ("#showtooltip\n/cast [equipped:Thrown] %s; [equipped:Bows] %s; [equipped:Guns] %s; [equipped:Crossbows] %s")
 				:format(S.throw, S.shootBow, S.shootGun, S.shootCrossbow) },
 		},
 		keys = {
@@ -111,7 +112,8 @@ local MOVEMENT = {
 	STRAFELEFT = true, STRAFERIGHT = true, JUMP = true, TOGGLEAUTORUN = true,
 }
 
-local MACRO_ICON = 134400 -- INV_Misc_QuestionMark: #showtooltip picks the real icon
+local AUTO_ICON = 134400 -- INV_Misc_QuestionMark: the "automatic" icon #showtooltip replaces
+local FALLBACK_ICON = "Ability_Rogue_Eviscerate"
 local CHARACTER_SET = (BINDING_SET and BINDING_SET.Character) or CHARACTER_BINDINGS or 2
 local MAX_CHAR_MACROS = (Constants and Constants.MacroConsts and Constants.MacroConsts.MAX_CHARACTER_MACROS) or MAX_CHARACTER_MACROS or 18
 local BAR2_HELP = "Can't see bar 2 (X, C, T, Shift-Q/E/R)? Type /reload, or turn it on: Options > Action Bars > tick Bar 2 (\"Bottom Left\")."
@@ -244,15 +246,32 @@ end
 
 -- Creates missing macros and resets existing ones to the canonical body.
 -- quiet: only report problems (used by the automatic refresh).
+-- Fixed icon until one of the macro's spells is learned, then the automatic icon.
+local function MacroIcon(macro)
+	if macro.spells then
+		for _, spell in ipairs(macro.spells) do
+			if IsKnown(spell) then return AUTO_ICON, "auto" end
+		end
+	end
+	local name = macro.icon or FALLBACK_ICON
+	-- Resolve the icon name to a file ID (what the macro UI passes); the name string
+	-- works too.
+	local fileID = GetFileIDFromPath and GetFileIDFromPath("Interface\\Icons\\" .. name)
+	return fileID or name, name
+end
+
 local function UpdateMacros(quiet)
 	local created, edited, failed = {}, 0, {}
+	db.macroIcon = db.macroIcon or {}
 	for _, macro in ipairs(profile.macros) do
 		local body = MacroBody(macro)
+		local icon, iconKey = MacroIcon(macro)
 		local index = GetMacroIndexByName(macro.name)
 		if index and index > 0 then
 			local _, _, oldBody = GetMacroInfo(index)
-			if oldBody ~= body then
-				EditMacro(index, macro.name, nil, body)
+			if oldBody ~= body or db.macroIcon[macro.name] ~= iconKey then
+				EditMacro(index, macro.name, icon, body)
+				db.macroIcon[macro.name] = iconKey
 				edited = edited + 1
 			end
 		else
@@ -260,7 +279,8 @@ local function UpdateMacros(quiet)
 			if numChar >= MAX_CHAR_MACROS then
 				table.insert(failed, macro.name)
 			else
-				CreateMacro(macro.name, MACRO_ICON, body, true)
+				CreateMacro(macro.name, icon, body, true)
+				db.macroIcon[macro.name] = iconKey
 				table.insert(created, macro.name)
 			end
 		end
@@ -433,8 +453,27 @@ local function ApplyBindings()
 			end
 		end
 	end
+	-- Old keys still bound to a RogueKit button (e.g. 6 on button 6 once Q owns it) would
+	-- still press it, and the bar shows the first key. Free them; undo puts them back.
+	local cleared, mine = {}, {}
+	for _, entry in ipairs(profile.keys) do mine[entry.key] = true end
+	for _, entry in ipairs(profile.keys) do
+		if not entry.stealth then
+			local command = EntryCommand(entry)
+			if command and GetBindingAction(entry.key) == command then
+				for _, other in ipairs({ GetBindingKey(command) }) do
+					if other ~= entry.key and not mine[other] then
+						if db.undo[other] == nil then db.undo[other] = command end
+						SetBinding(other)
+						table.insert(cleared, other)
+					end
+				end
+			end
+		end
+	end
 	SaveBindings(CHARACTER_SET)
 	if #replaced > 0 then Print("Changed these keys (undo brings them back): " .. table.concat(replaced, ", ")) end
+	if #cleared > 0 then Print("Freed old keys: " .. table.concat(cleared, ", ")) end
 	if #refused > 0 then
 		Print("|cffff5555Not changed|r (it's your only key for moving, or an error): " .. table.concat(refused, ", "))
 	end

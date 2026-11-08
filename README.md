@@ -141,3 +141,11 @@ Saved per character in `RogueKitCharDB` (setup state, replaced keys, what was pl
 ## License
 
 MIT. See `LICENSE`.
+
+## Changelog
+
+### 0.2.0
+- Macros (Stealth, Sap, Throw) get real icons instead of the red question mark until the
+  spell is learned; after that they switch to the automatic icon.
+- Setup frees old keys still bound to RogueKit's buttons (e.g. 6-0 once Q/E/R/F/G own them),
+  so the bar shows the right key. `/roguekit undo` puts them back.

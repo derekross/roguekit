@@ -3,7 +3,7 @@
 ## IconTexture: Interface\AddOns\RogueKit\Media\Icon
 ## Notes: One-command macros, action bars (incl. the stealth bar) and keybinds for Logan's Combat Rogue. /roguekit
 ## Author: Derek Ross
-## Version: 0.1.0
+## Version: 0.2.0
 ## SavedVariablesPerCharacter: RogueKitCharDB
 
 RogueKit.lua
